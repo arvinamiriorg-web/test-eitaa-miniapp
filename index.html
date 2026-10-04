@@ -16,7 +16,6 @@
         }
 
         html {
-            /* اجازه اسکرول */
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
@@ -28,12 +27,10 @@
             color: #222222;
             min-height: 100vh;
             min-height: 100dvh;
-            /* پدینگ امن برای گوشی‌های notch دار */
             padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* اسکرول عمودی مجاز */
             overflow-y: auto;
         }
 
@@ -43,52 +40,15 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
         }
 
-        .header {
+        .page-title {
             text-align: center;
-            margin-bottom: 4px;
-            flex-shrink: 0;
-        }
-
-        .avatar {
-            width: 88px;
-            height: 88px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 14px;
-            font-size: 36px;
-            font-weight: 700;
-            color: #888;
-            border: 2px solid #f5f5f5;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .full-name {
             font-size: clamp(18px, 5vw, 22px);
             font-weight: 700;
             color: #111;
             margin-bottom: 4px;
-            word-break: break-word;
-        }
-
-        .username {
-            font-size: clamp(12px, 3.5vw, 14px);
-            color: #888;
-            direction: ltr;
-            display: inline-block;
-            word-break: break-all;
         }
 
         .info-card {
@@ -96,7 +56,6 @@
             border-radius: 16px;
             padding: 4px 18px;
             border: 1px solid #f0f0f0;
-            flex-shrink: 0;
         }
 
         .info-row {
@@ -104,7 +63,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 12px;
-            padding: 13px 0;
+            padding: 14px 0;
             border-bottom: 1px solid #eeeeee;
         }
 
@@ -125,7 +84,6 @@
             font-weight: 600;
             direction: ltr;
             text-align: left;
-            /* اجازه شکستن متن‌های طولانی */
             word-break: break-all;
             max-width: 60%;
         }
@@ -134,8 +92,6 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-top: 4px;
-            flex-shrink: 0;
         }
 
         .btn {
@@ -169,6 +125,11 @@
         .btn-secondary {
             background-color: #f2f2f2;
             color: #333333;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .loading {
@@ -212,7 +173,6 @@
             display: none !important;
         }
 
-        /* اسکرول‌بار نامرئی */
         ::-webkit-scrollbar {
             width: 0;
             height: 0;
@@ -229,13 +189,7 @@
     <div id="error" class="error hidden"></div>
 
     <div id="content" class="container hidden">
-        <div class="header">
-            <div class="avatar" id="avatar">
-                <span id="avatarInitial">؟</span>
-            </div>
-            <div class="full-name" id="fullName">—</div>
-            <div class="username" id="username"></div>
-        </div>
+        <div class="page-title">اطلاعات حساب کاربری</div>
 
         <div class="info-card">
             <div class="info-row">
@@ -251,10 +205,6 @@
                 <span class="info-value" id="lastName">—</span>
             </div>
             <div class="info-row">
-                <span class="info-label">نام کاربری</span>
-                <span class="info-value" id="userName">—</span>
-            </div>
-            <div class="info-row">
                 <span class="info-label">زبان</span>
                 <span class="info-value" id="languageCode">—</span>
             </div>
@@ -263,17 +213,13 @@
                 <span class="info-value" id="platform">—</span>
             </div>
             <div class="info-row">
-                <span class="info-label">نسخه کیت</span>
-                <span class="info-value" id="sdkVersion">—</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">وضعیت احراز</span>
-                <span class="info-value" id="authStatus">—</span>
+                <span class="info-label">شماره تلفن</span>
+                <span class="info-value" id="phoneNumber">دریافت نشده</span>
             </div>
         </div>
 
         <div class="buttons">
-            <button class="btn btn-primary" id="refreshBtn" type="button">🔄 دریافت مجدد اطلاعات</button>
+            <button class="btn btn-primary" id="phoneBtn" type="button">📱 دریافت شماره تلفن</button>
             <button class="btn btn-secondary" id="closeBtn" type="button">✖ بستن برنامه</button>
         </div>
     </div>
@@ -285,6 +231,8 @@
             var loadingEl = document.getElementById('loading');
             var errorEl = document.getElementById('error');
             var contentEl = document.getElementById('content');
+            var phoneBtn = document.getElementById('phoneBtn');
+            var phoneNumberEl = document.getElementById('phoneNumber');
 
             /* ---------- ویبره ---------- */
             function vibrate(type) {
@@ -318,89 +266,34 @@
 
             /* ---------- پارس امن initData ---------- */
             function parseInitData(initData) {
-                // initData یک query string است
-                var result = { user: null, auth_date: null, hash: null, raw: initData };
+                var result = { user: null };
                 if (!initData || typeof initData !== 'string') return result;
-
                 try {
                     var params = new URLSearchParams(initData);
                     var userStr = params.get('user');
-                    if (userStr) {
-                        result.user = JSON.parse(userStr);
-                    }
-                    result.auth_date = params.get('auth_date');
-                    result.hash = params.get('hash');
-                } catch (e) {
-                    console.warn('parseInitData error:', e);
-                }
+                    if (userStr) result.user = JSON.parse(userStr);
+                } catch (e) {}
                 return result;
             }
 
-            /* ---------- بررسی اعتبار (سمت کلاینت - فقط برای نمایش) ----------
-               توجه: اعتبارسنجی اصلی باید در سرور انجام شود.
-               اینجا فقط بررسی می‌کنیم که auth_date تازه باشد (< 24 ساعت)
-               و hash وجود داشته باشد. */
-            function checkFreshness(authDate) {
-                if (!authDate) return false;
-                var ts = parseInt(authDate, 10);
-                if (isNaN(ts)) return false;
-                var now = Math.floor(Date.now() / 1000);
-                // اگر کمتر از 24 ساعت گذشته باشد
-                return (now - ts) < 86400 && (now - ts) >= -60;
-            }
-
-            /* ---------- رندر داده کاربر ---------- */
-            function renderUserData(user, meta) {
-                var firstName = (user && user.first_name) || '';
-                var lastName = (user && user.last_name) || '';
-                var userName = (user && user.username) || '';
-                var userId = (user && user.id != null) ? user.id : '—';
-                var languageCode = (user && user.language_code) || '—';
-
-                var fullName = [firstName, lastName].filter(Boolean).join(' ') || 'کاربر ایتا';
-                document.getElementById('fullName').textContent = fullName;
-
-                var initial = firstName ? firstName.charAt(0) : (userName ? userName.charAt(0) : '؟');
-                var avatarEl = document.getElementById('avatar');
-                avatarEl.innerHTML = '<span id="avatarInitial">' + initial + '</span>';
-
-                // photo_url در SDK ایتا ممکن است متفاوت باشد
-                if (user && (user.photo_url || user.photo)) {
-                    var img = document.createElement('img');
-                    img.src = user.photo_url || user.photo;
-                    img.alt = fullName;
-                    img.onerror = function () {
-                        avatarEl.innerHTML = '<span>' + initial + '</span>';
-                    };
-                    avatarEl.innerHTML = '';
-                    avatarEl.appendChild(img);
+            /* ---------- رندر اطلاعات کاربر ---------- */
+            function renderUserData(user) {
+                if (!user) {
+                    document.getElementById('userId').textContent = '—';
+                    document.getElementById('firstName').textContent = '—';
+                    document.getElementById('lastName').textContent = '—';
+                    document.getElementById('languageCode').textContent = '—';
+                    return;
                 }
 
-                var usernameEl = document.getElementById('username');
-                usernameEl.textContent = userName ? '@' + userName : '';
-
-                document.getElementById('userId').textContent = userId;
-                document.getElementById('firstName').textContent = firstName || '—';
-                document.getElementById('lastName').textContent = lastName || '—';
-                document.getElementById('userName').textContent = userName ? '@' + userName : '—';
-                document.getElementById('languageCode').textContent = languageCode;
-
-                var wa = window.Eitaa.WebApp;
-                document.getElementById('platform').textContent = wa.platform || '—';
-                document.getElementById('sdkVersion').textContent = wa.version || '—';
-
-                // وضعیت احراز (فقط نمایشی)
-                var authStatusEl = document.getElementById('authStatus');
-                if (meta && meta.auth_date && checkFreshness(meta.auth_date)) {
-                    authStatusEl.textContent = '✓ داده تازه';
-                    authStatusEl.style.color = '#2e7d32';
-                } else if (meta && meta.auth_date) {
-                    authStatusEl.textContent = '⚠ قدیمی';
-                    authStatusEl.style.color = '#ed6c02';
-                } else {
-                    authStatusEl.textContent = '—';
-                    authStatusEl.style.color = '#666';
-                }
+                document.getElementById('userId').textContent =
+                    (user.id != null) ? user.id : '—';
+                document.getElementById('firstName').textContent =
+                    user.first_name || '—';
+                document.getElementById('lastName').textContent =
+                    user.last_name || '—';
+                document.getElementById('languageCode').textContent =
+                    user.language_code || '—';
             }
 
             /* ---------- بارگذاری اطلاعات ---------- */
@@ -415,7 +308,6 @@
                     return;
                 }
 
-                // اطلاع به ایتا
                 try { wa.ready(); } catch (e) {}
                 try { wa.expand(); } catch (e) {}
                 try {
@@ -423,37 +315,88 @@
                     wa.setHeaderColor('#ffffff');
                 } catch (e) {}
 
-                // دریافت داده‌ها - اولویت با initData (امن‌تر) است
+                // دریافت user از initData (امن‌تر) با fallback به initDataUnsafe
                 var user = null;
-                var meta = { auth_date: null, hash: null };
 
-                // روش ۱: پارس initData (توصیه‌شده طبق مستندات)
                 if (wa.initData) {
                     var parsed = parseInitData(wa.initData);
                     user = parsed.user;
-                    meta.auth_date = parsed.auth_date;
-                    meta.hash = parsed.hash;
                 }
-
-                // روش ۲: fallback به initDataUnsafe
                 if (!user && wa.initDataUnsafe && wa.initDataUnsafe.user) {
                     user = wa.initDataUnsafe.user;
-                    if (wa.initDataUnsafe.auth_date) meta.auth_date = wa.initDataUnsafe.auth_date;
-                    if (wa.initDataUnsafe.hash) meta.hash = wa.initDataUnsafe.hash;
                 }
 
-                if (user) {
-                    renderUserData(user, meta);
-                    showContent();
-                } else {
+                if (!user) {
                     showError('اطلاعات حساب کاربری در دسترس نیست.\nلطفاً از داخل ایتا برنامه را باز کنید.');
+                    return;
+                }
+
+                renderUserData(user);
+                document.getElementById('platform').textContent = wa.platform || '—';
+
+                showContent();
+            }
+
+            /* ---------- دریافت شماره تلفن ---------- */
+            function requestPhoneNumber() {
+                var wa = window.Eitaa && window.Eitaa.WebApp;
+                if (!wa || typeof wa.requestContact !== 'function') {
+                    vibrate('error');
+                    try {
+                        wa.showAlert('درخواست شماره تلفن در این نسخه از ایتا پشتیبانی نمی‌شود.');
+                    } catch (e) {
+                        alert('درخواست شماره تلفن در این نسخه از ایتا پشتیبانی نمی‌شود.');
+                    }
+                    return;
+                }
+
+                phoneBtn.disabled = true;
+                phoneBtn.textContent = '⏳ در حال دریافت...';
+
+                // requestContact یک پاپ‌آپ بومی باز می‌کند
+                try {
+                    wa.requestContact(function (granted, contactData) {
+                        phoneBtn.disabled = false;
+                        phoneBtn.textContent = '📱 دریافت شماره تلفن';
+
+                        if (granted && contactData) {
+                            vibrate('success');
+                            // contactData یک رشته است شامل شماره و hash
+                            // فرمت معمول: "phone_number=+98...&hash=..."
+                            var phone = '—';
+                            try {
+                                var params = new URLSearchParams(contactData);
+                                var p = params.get('phone_number') || params.get('contact');
+                                if (p) {
+                                    phone = p;
+                                } else {
+                                    // اگر فرمت متفاوت بود، کل رشته را نشان بده
+                                    phone = contactData;
+                                }
+                            } catch (e) {
+                                phone = contactData;
+                            }
+                            phoneNumberEl.textContent = phone;
+                            phoneNumberEl.style.direction = 'ltr';
+                        } else {
+                            vibrate('warning');
+                            phoneNumberEl.textContent = 'اجازه داده نشد';
+                        }
+                    });
+                } catch (e) {
+                    phoneBtn.disabled = false;
+                    phoneBtn.textContent = '📱 دریافت شماره تلفن';
+                    vibrate('error');
+                    try {
+                        wa.showAlert('خطا در درخواست شماره تلفن: ' + e.message);
+                    } catch (err) {}
                 }
             }
 
             /* ---------- رویدادها ---------- */
-            document.getElementById('refreshBtn').addEventListener('click', function () {
+            phoneBtn.addEventListener('click', function () {
                 vibrate('medium');
-                loadUserData();
+                requestPhoneNumber();
             });
 
             document.getElementById('closeBtn').addEventListener('click', function () {
