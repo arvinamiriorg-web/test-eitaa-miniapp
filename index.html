@@ -1,284 +1,459 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>برنامک تستی ایتا</title>
-  
-  <!-- کیت توسعه ایتا - باید حتماً از آدرس رسمی بارگذاری شود -->
-  <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
-  
-  <style>
-    :root {
-      --bg: var(--tg-theme-bg-color, #ffffff);
-      --text: var(--tg-theme-text-color, #000000);
-      --hint: var(--tg-theme-hint-color, #999999);
-      --btn: var(--tg-theme-button-color, #2481cc);
-      --btn-text: var(--tg-theme-button-text-color, #ffffff);
-    }
-    
-    * { box-sizing: border-box; }
-    
-    body {
-      font-family: -apple-system, Tahoma, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 16px;
-      padding-bottom: 100px;
-      direction: rtl;
-      transition: background 0.2s, color 0.2s;
-    }
-    
-    h1 { font-size: 20px; margin: 0 0 16px; }
-    h2 { font-size: 16px; margin: 20px 0 8px; color: var(--hint); }
-    
-    .card {
-      background: rgba(128,128,128,0.08);
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 10px;
-      font-size: 14px;
-      line-height: 1.7;
-    }
-    
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 4px 0;
-      border-bottom: 1px dashed rgba(128,128,128,0.2);
-    }
-    .row:last-child { border-bottom: none; }
-    .row .k { color: var(--hint); }
-    .row .v { font-weight: 600; word-break: break-all; text-align: left; direction: ltr; }
-    
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 8px;
-      font-size: 15px;
-      font-family: inherit;
-      border: none;
-      border-radius: 10px;
-      background: var(--btn);
-      color: var(--btn-text);
-      cursor: pointer;
-      transition: opacity 0.15s;
-    }
-    button:active { opacity: 0.7; }
-    button.secondary {
-      background: rgba(128,128,128,0.15);
-      color: var(--text);
-    }
-    
-    pre {
-      background: rgba(0,0,0,0.06);
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 11px;
-      direction: ltr;
-      text-align: left;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 200px;
-    }
-    
-    .status {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .ok { background: #d4f8d4; color: #0a6b0a; }
-    .err { background: #f8d4d4; color: #a10a0a; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>اطلاعات حساب کاربری</title>
+    <!-- اتصال به کیت توسعه ایتا (طبق مستندات، باید در head و قبل از هر اسکریپت دیگری باشد) -->
+    <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            background-color: #ffffff;
+            color: #222222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            /* استفاده از ارتفاع پویا برای پر کردن تمام صفحه در WebView */
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 40px;
+            color: #888;
+            border: 2px solid #f5f5f5;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .full-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 4px;
+        }
+
+        .username {
+            font-size: 14px;
+            color: #888;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        .info-card {
+            background-color: #f9f9f9;
+            border-radius: 16px;
+            padding: 8px 20px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 15px;
+            color: #111;
+            font-weight: 600;
+            direction: ltr;
+            text-align: left;
+            max-width: 60%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+            opacity: 0.85;
+        }
+
+        .btn-primary {
+            background-color: #2f7cf6;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(47, 124, 246, 0.25);
+        }
+
+        .btn-secondary {
+            background-color: #f2f2f2;
+            color: #333333;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            color: #888;
+            font-size: 15px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #2f7cf6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            text-align: center;
+            color: #e53935;
+            font-size: 15px;
+            line-height: 1.7;
+            padding: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>🧪 برنامک تستی ایتا</h1>
+    <!-- حالت بارگذاری -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <span>در حال دریافت اطلاعات...</span>
+    </div>
 
-  <div class="card">
-    وضعیت SDK:
-    <span id="sdkStatus" class="status err">در حال بررسی...</span>
-  </div>
+    <!-- حالت خطا -->
+    <div id="error" class="error hidden"></div>
 
-  <h2>اطلاعات کاربر (initDataUnsafe)</h2>
-  <div class="card" id="userInfo">
-    <div class="row"><span class="k">نام</span><span class="v" id="uName">-</span></div>
-    <div class="row"><span class="k">شناسه</span><span class="v" id="uId">-</span></div>
-    <div class="row"><span class="k">زبان</span><span class="v" id="uLang">-</span></div>
-    <div class="row"><span class="k">start_param</span><span class="v" id="uStart">-</span></div>
-  </div>
+    <!-- محتوای اصلی -->
+    <div id="content" class="container hidden">
+        <div class="header">
+            <div class="avatar" id="avatar">
+                <span id="avatarInitial">؟</span>
+            </div>
+            <div class="full-name" id="fullName">—</div>
+            <div class="username" id="username"></div>
+        </div>
 
-  <h2>اطلاعات محیط</h2>
-  <div class="card">
-    <div class="row"><span class="k">پلتفرم</span><span class="v" id="iPlatform">-</span></div>
-    <div class="row"><span class="k">نسخه SDK</span><span class="v" id="iVersion">-</span></div>
-    <div class="row"><span class="k">تم</span><span class="v" id="iScheme">-</span></div>
-    <div class="row"><span class="k">ارتفاع</span><span class="v" id="iHeight">-</span></div>
-  </div>
+        <div class="info-card">
+            <div class="info-row">
+                <span class="info-label">شناسه کاربری</span>
+                <span class="info-value" id="userId">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">نام</span>
+                <span class="info-value" id="firstName">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">نام خانوادگی</span>
+                <span class="info-value" id="lastName">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">نام کاربری</span>
+                <span class="info-value" id="userName">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">زبان</span>
+                <span class="info-value" id="languageCode">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">پلتفرم</span>
+                <span class="info-value" id="platform">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">نسخه کیت</span>
+                <span class="info-value" id="sdkVersion">—</span>
+            </div>
+        </div>
 
-  <h2>initData خام (برای ارسال به سرور)</h2>
-  <div class="card">
-    <pre id="rawInit">-</pre>
-    <button class="secondary" onclick="copyInit()">📋 کپی initData</button>
-  </div>
+        <div class="buttons">
+            <button class="btn btn-primary" id="refreshBtn">🔄 دریافت مجدد اطلاعات</button>
+            <button class="btn btn-secondary" id="closeBtn">✖ بستن برنامه</button>
+        </div>
+    </div>
 
-  <h2>تست توابع SDK</h2>
+    <script>
+        (function () {
+            'use strict';
 
-  <button onclick="testAlert()">نمایش Alert</button>
-  <button onclick="testConfirm()">نمایش Confirm</button>
-  <button onclick="testPopup()">نمایش Popup</button>
-  <button onclick="testHaptic()">بازخورد لمسی (Haptic)</button>
-  <button onclick="testContact()">درخواست شماره تلفن</button>
-  <button onclick="testWriteAccess()">درخواست اجازه ارسال پیام</button>
-  <button onclick="testQr()">اسکن QR</button>
-  <button onclick="testExpand()">Expand (تمام ارتفاع)</button>
-  <button onclick="testHomeScreen()">افزودن به صفحه اصلی</button>
-  <button class="secondary" onclick="toggleTheme()">تغییر رنگ هدر</button>
-  <button class="secondary" onclick="closeApp()">❌ بستن برنامک</button>
+            // عناصر DOM
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const contentEl = document.getElementById('content');
 
-  <script>
-    // ============ بررسی دسترسی به SDK ============
-    const E = window.Eitaa?.WebApp;
-    const sdkEl = document.getElementById('sdkStatus');
+            // تابع کمکی برای ویبره (بازخورد لمسی)
+            function vibrate(type) {
+                try {
+                    if (window.Eitaa && window.Eitaa.WebApp && window.Eitaa.WebApp.HapticFeedback) {
+                        const hf = window.Eitaa.WebApp.HapticFeedback;
+                        switch (type) {
+                            case 'light':
+                                hf.impactOccurred('light');
+                                break;
+                            case 'medium':
+                                hf.impactOccurred('medium');
+                                break;
+                            case 'heavy':
+                                hf.impactOccurred('heavy');
+                                break;
+                            case 'success':
+                                hf.notificationOccurred('success');
+                                break;
+                            case 'error':
+                                hf.notificationOccurred('error');
+                                break;
+                            case 'warning':
+                                hf.notificationOccurred('warning');
+                                break;
+                            default:
+                                hf.impactOccurred('light');
+                        }
+                    }
+                } catch (e) {
+                    // نادیده گرفتن خطا در صورت عدم پشتیبانی
+                }
+            }
 
-    if (E) {
-      sdkEl.textContent = '✅ فعال';
-      sdkEl.className = 'status ok';
-      initApp();
-    } else {
-      sdkEl.textContent = '❌ غیرفعال (خارج از ایتا)';
-      sdkEl.className = 'status err';
-    }
+            // نمایش خطا
+            function showError(message) {
+                loadingEl.classList.add('hidden');
+                contentEl.classList.add('hidden');
+                errorEl.classList.remove('hidden');
+                errorEl.textContent = message;
+            }
 
-    function initApp() {
-      // اطلاع به ایتا که برنامک آماده است
-      E.ready();
+            // نمایش محتوا
+            function showContent() {
+                loadingEl.classList.add('hidden');
+                errorEl.classList.add('hidden');
+                contentEl.classList.remove('hidden');
+            }
 
-      // گسترش به تمام ارتفاع
-      E.expand();
+            // به‌روزرسانی UI با داده‌های کاربر
+            function renderUserData(user) {
+                const firstName = user.first_name || '';
+                const lastName = user.last_name || '';
+                const userName = user.username || '';
+                const userId = user.id != null ? user.id : '—';
+                const languageCode = user.language_code || '—';
 
-      // نمایش اطلاعات محیطی
-      document.getElementById('iPlatform').textContent = E.platform || '-';
-      document.getElementById('iVersion').textContent  = E.version  || '-';
-      document.getElementById('iScheme').textContent   = E.colorScheme || '-';
-      document.getElementById('iHeight').textContent   = E.viewportHeight + 'px';
+                // نام کامل
+                const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'کاربر ایتا';
+                document.getElementById('fullName').textContent = fullName;
 
-      // نمایش initData خام (برای ارسال به سرور)
-      document.getElementById('rawInit').textContent = E.initData || '(خالی)';
+                // حرف اول برای آواتار
+                const initial = firstName ? firstName.charAt(0) : (userName ? userName.charAt(0) : '؟');
+                document.getElementById('avatarInitial').textContent = initial;
 
-      // نمایش اطلاعات کاربر از initDataUnsafe
-      const u = E.initDataUnsafe?.user;
-      if (u) {
-        document.getElementById('uName').textContent = 
-          (u.first_name || '') + ' ' + (u.last_name || '');
-        document.getElementById('uId').textContent   = u.id || '-';
-        document.getElementById('uLang').textContent = u.language_code || '-';
-      }
-      document.getElementById('uStart').textContent = 
-        E.initDataUnsafe?.start_param || '(ندارد)';
+                // آواتار تصویری (در صورت وجود photo_url)
+                if (user.photo_url) {
+                    const avatarEl = document.getElementById('avatar');
+                    avatarEl.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = user.photo_url;
+                    img.alt = fullName;
+                    img.onerror = function () {
+                        avatarEl.innerHTML = '<span>' + initial + '</span>';
+                    };
+                    avatarEl.appendChild(img);
+                }
 
-      // گوش دادن به رویداد تغییر ارتفاع
-      E.onEvent('viewportChanged', () => {
-        document.getElementById('iHeight').textContent = 
-          E.viewportHeight + 'px';
-      });
-    }
+                // نام کاربری
+                const usernameEl = document.getElementById('username');
+                if (userName) {
+                    usernameEl.textContent = '@' + userName;
+                } else {
+                    usernameEl.textContent = '';
+                }
 
-    // ============ توابع تست ============
-    function testAlert() {
-      E?.showAlert('این یک پیام هشدار تستی است 👋');
-    }
+                // سایر فیلدها
+                document.getElementById('userId').textContent = userId;
+                document.getElementById('firstName').textContent = firstName || '—';
+                document.getElementById('lastName').textContent = lastName || '—';
+                document.getElementById('userName').textContent = userName ? '@' + userName : '—';
+                document.getElementById('languageCode').textContent = languageCode;
 
-    function testConfirm() {
-      E?.showConfirm('آیا موافق هستید؟', (ok) => {
-        E.showAlert(ok ? 'شما تایید کردید ✅' : 'لغو شد ❌');
-      });
-    }
+                // اطلاعات SDK
+                const wa = window.Eitaa.WebApp;
+                document.getElementById('platform').textContent = wa.platform || '—';
+                document.getElementById('sdkVersion').textContent = wa.version || '—';
+            }
 
-    function testPopup() {
-      E?.showPopup({
-        title: 'عنوان پاپ‌آپ',
-        message: 'این یک پاپ‌آپ تستی است.',
-        buttons: [
-          { id: 'yes', type: 'default', text: 'بله' },
-          { id: 'no',  type: 'destructive', text: 'خیر' }
-        ]
-      }, (id) => {
-        if (id) E.showAlert('دکمه انتخاب‌شده: ' + id);
-      });
-    }
+            // بارگذاری اطلاعات کاربر از SDK
+            function loadUserData() {
+                loadingEl.classList.remove('hidden');
+                contentEl.classList.add('hidden');
+                errorEl.classList.add('hidden');
 
-    function testHaptic() {
-      if (E?.HapticFeedback) {
-        E.HapticFeedback.impactOccurred('medium');
-        E.HapticFeedback.notificationOccurred('success');
-        E.showAlert('بازخورد لمسی اجرا شد 📳');
-      }
-    }
+                // بررسی وجود SDK
+                if (!window.Eitaa || !window.Eitaa.WebApp) {
+                    showError('کیت توسعه ایتا در دسترس نیست. لطفاً این برنامه را از داخل پیام‌رسان ایتا باز کنید.');
+                    return;
+                }
 
-    function testContact() {
-      E?.requestContact((shared, data) => {
-        if (shared) {
-          E.showAlert('شماره دریافت شد ✅\n(داده هش‌دار به سرور ارسال کنید)');
-          console.log('Contact data:', data);
-        } else {
-          E.showAlert('کاربر شماره را به اشتراک نگذاشت ❌');
-        }
-      });
-    }
+                const wa = window.Eitaa.WebApp;
 
-    function testWriteAccess() {
-      E?.requestWriteAccess((granted) => {
-        E.showAlert(granted ? 'اجازه ارسال پیام داده شد ✅' : 'اجازه داده نشد ❌');
-      });
-    }
+                // اطلاع به ایتا که برنامه آماده نمایش است
+                try {
+                    wa.ready();
+                } catch (e) {}
 
-    function testQr() {
-      E?.showScanQrPopup({ text: 'کد QR را در کادر قرار دهید' }, (text) => {
-        E.showAlert('محتوای QR: ' + text);
-        return true; // بستن پنجره اسکنر
-      });
-    }
+                // درخواست حالت تمام صفحه
+                try {
+                    wa.expand();
+                } catch (e) {}
 
-    function testExpand() {
-      E?.expand();
-    }
+                // تنظیم رنگ پس‌زمینه سفید
+                try {
+                    wa.setBackgroundColor('#ffffff');
+                    wa.setHeaderColor('#ffffff');
+                } catch (e) {}
 
-    function testHomeScreen() {
-      E?.addToHomeScreen();
-    }
+                // تلاش برای دریافت داده‌های کاربر
+                let user = null;
 
-    let darkHeader = false;
-    function toggleTheme() {
-      darkHeader = !darkHeader;
-      E?.setHeaderColor(darkHeader ? '#1a1a2e' : 'bg_color');
-    }
+                // روش 1: از طریق initDataUnsafe.user
+                if (wa.initDataUnsafe && wa.initDataUnsafe.user) {
+                    user = wa.initDataUnsafe.user;
+                }
 
-    function closeApp() {
-      E?.close();
-    }
+                // روش 2: اگر user نبود، از initData پارس کنیم
+                if (!user && wa.initData) {
+                    try {
+                        const params = new URLSearchParams(wa.initData);
+                        const userStr = params.get('user');
+                        if (userStr) {
+                            user = JSON.parse(userStr);
+                        }
+                    } catch (e) {
+                        console.warn('خطا در پارس initData:', e);
+                    }
+                }
 
-    function copyInit() {
-      const data = E?.initData || '';
-      if (!data) return;
-      navigator.clipboard.writeText(data).then(() => {
-        E?.showAlert('initData کپی شد ✅');
-      }).catch(() => {
-        // فالبک برای مرورگرهای قدیمی
-        const ta = document.createElement('textarea');
-        ta.value = data;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        ta.remove();
-        E?.showAlert('initData کپی شد ✅');
-      });
-    }
-  </script>
+                // نمایش داده‌ها
+                if (user) {
+                    renderUserData(user);
+                    showContent();
+                } else {
+                    showError('اطلاعات حساب کاربری در دسترس نیست. لطفاً از داخل ایتا برنامه را باز کنید.');
+                }
+            }
+
+            // رویداد کلیک دکمه دریافت مجدد
+            document.getElementById('refreshBtn').addEventListener('click', function () {
+                vibrate('medium');
+                loadUserData();
+            });
+
+            // رویداد کلیک دکمه بستن
+            document.getElementById('closeBtn').addEventListener('click', function () {
+                vibrate('medium');
+                try {
+                    if (window.Eitaa && window.Eitaa.WebApp) {
+                        window.Eitaa.WebApp.close();
+                    }
+                } catch (e) {}
+            });
+
+            // راه‌اندازی اولیه هنگام بارگذاری صفحه
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadUserData);
+            } else {
+                loadUserData();
+            }
+
+            // گوش دادن به رویداد تغییر تم (اختیاری)
+            try {
+                if (window.Eitaa && window.Eitaa.WebApp && window.Eitaa.WebApp.onEvent) {
+                    window.Eitaa.WebApp.onEvent('themeChanged', function () {
+                        // در صورت نیاز می‌توان رنگ‌ها را تغییر داد
+                    });
+                }
+            } catch (e) {}
+
+        })();
+    </script>
 </body>
 </html>
