@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>برنامک تستی ایتا</title>
+  
+  <!-- کیت توسعه ایتا - باید حتماً از آدرس رسمی بارگذاری شود -->
+  <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+  
+  <style>
+    :root {
+      --bg: var(--tg-theme-bg-color, #ffffff);
+      --text: var(--tg-theme-text-color, #000000);
+      --hint: var(--tg-theme-hint-color, #999999);
+      --btn: var(--tg-theme-button-color, #2481cc);
+      --btn-text: var(--tg-theme-button-text-color, #ffffff);
+    }
+    
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+      padding-bottom: 100px;
+      direction: rtl;
+      transition: background 0.2s, color 0.2s;
+    }
+    
+    h1 { font-size: 20px; margin: 0 0 16px; }
+    h2 { font-size: 16px; margin: 20px 0 8px; color: var(--hint); }
+    
+    .card {
+      background: rgba(128,128,128,0.08);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(128,128,128,0.2);
+    }
+    .row:last-child { border-bottom: none; }
+    .row .k { color: var(--hint); }
+    .row .v { font-weight: 600; word-break: break-all; text-align: left; direction: ltr; }
+    
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      border: none;
+      border-radius: 10px;
+      background: var(--btn);
+      color: var(--btn-text);
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    button:active { opacity: 0.7; }
+    button.secondary {
+      background: rgba(128,128,128,0.15);
+      color: var(--text);
+    }
+    
+    pre {
+      background: rgba(0,0,0,0.06);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      direction: ltr;
+      text-align: left;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 200px;
+    }
+    
+    .status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .ok { background: #d4f8d4; color: #0a6b0a; }
+    .err { background: #f8d4d4; color: #a10a0a; }
+  </style>
+</head>
+<body>
+
+  <h1>🧪 برنامک تستی ایتا</h1>
+
+  <div class="card">
+    وضعیت SDK:
+    <span id="sdkStatus" class="status err">در حال بررسی...</span>
+  </div>
+
+  <h2>اطلاعات کاربر (initDataUnsafe)</h2>
+  <div class="card" id="userInfo">
+    <div class="row"><span class="k">نام</span><span class="v" id="uName">-</span></div>
+    <div class="row"><span class="k">شناسه</span><span class="v" id="uId">-</span></div>
+    <div class="row"><span class="k">زبان</span><span class="v" id="uLang">-</span></div>
+    <div class="row"><span class="k">start_param</span><span class="v" id="uStart">-</span></div>
+  </div>
+
+  <h2>اطلاعات محیط</h2>
+  <div class="card">
+    <div class="row"><span class="k">پلتفرم</span><span class="v" id="iPlatform">-</span></div>
+    <div class="row"><span class="k">نسخه SDK</span><span class="v" id="iVersion">-</span></div>
+    <div class="row"><span class="k">تم</span><span class="v" id="iScheme">-</span></div>
+    <div class="row"><span class="k">ارتفاع</span><span class="v" id="iHeight">-</span></div>
+  </div>
+
+  <h2>initData خام (برای ارسال به سرور)</h2>
+  <div class="card">
+    <pre id="rawInit">-</pre>
+    <button class="secondary" onclick="copyInit()">📋 کپی initData</button>
+  </div>
+
+  <h2>تست توابع SDK</h2>
+
+  <button onclick="testAlert()">نمایش Alert</button>
+  <button onclick="testConfirm()">نمایش Confirm</button>
+  <button onclick="testPopup()">نمایش Popup</button>
+  <button onclick="testHaptic()">بازخورد لمسی (Haptic)</button>
+  <button onclick="testContact()">درخواست شماره تلفن</button>
+  <button onclick="testWriteAccess()">درخواست اجازه ارسال پیام</button>
+  <button onclick="testQr()">اسکن QR</button>
+  <button onclick="testExpand()">Expand (تمام ارتفاع)</button>
+  <button onclick="testHomeScreen()">افزودن به صفحه اصلی</button>
+  <button class="secondary" onclick="toggleTheme()">تغییر رنگ هدر</button>
+  <button class="secondary" onclick="closeApp()">❌ بستن برنامک</button>
+
+  <script>
+    // ============ بررسی دسترسی به SDK ============
+    const E = window.Eitaa?.WebApp;
+    const sdkEl = document.getElementById('sdkStatus');
+
+    if (E) {
+      sdkEl.textContent = '✅ فعال';
+      sdkEl.className = 'status ok';
+      initApp();
+    } else {
+      sdkEl.textContent = '❌ غیرفعال (خارج از ایتا)';
+      sdkEl.className = 'status err';
+    }
+
+    function initApp() {
+      // اطلاع به ایتا که برنامک آماده است
+      E.ready();
+
+      // گسترش به تمام ارتفاع
+      E.expand();
+
+      // نمایش اطلاعات محیطی
+      document.getElementById('iPlatform').textContent = E.platform || '-';
+      document.getElementById('iVersion').textContent  = E.version  || '-';
+      document.getElementById('iScheme').textContent   = E.colorScheme || '-';
+      document.getElementById('iHeight').textContent   = E.viewportHeight + 'px';
+
+      // نمایش initData خام (برای ارسال به سرور)
+      document.getElementById('rawInit').textContent = E.initData || '(خالی)';
+
+      // نمایش اطلاعات کاربر از initDataUnsafe
+      const u = E.initDataUnsafe?.user;
+      if (u) {
+        document.getElementById('uName').textContent = 
+          (u.first_name || '') + ' ' + (u.last_name || '');
+        document.getElementById('uId').textContent   = u.id || '-';
+        document.getElementById('uLang').textContent = u.language_code || '-';
+      }
+      document.getElementById('uStart').textContent = 
+        E.initDataUnsafe?.start_param || '(ندارد)';
+
+      // گوش دادن به رویداد تغییر ارتفاع
+      E.onEvent('viewportChanged', () => {
+        document.getElementById('iHeight').textContent = 
+          E.viewportHeight + 'px';
+      });
+    }
+
+    // ============ توابع تست ============
+    function testAlert() {
+      E?.showAlert('این یک پیام هشدار تستی است 👋');
+    }
+
+    function testConfirm() {
+      E?.showConfirm('آیا موافق هستید؟', (ok) => {
+        E.showAlert(ok ? 'شما تایید کردید ✅' : 'لغو شد ❌');
+      });
+    }
+
+    function testPopup() {
+      E?.showPopup({
+        title: 'عنوان پاپ‌آپ',
+        message: 'این یک پاپ‌آپ تستی است.',
+        buttons: [
+          { id: 'yes', type: 'default', text: 'بله' },
+          { id: 'no',  type: 'destructive', text: 'خیر' }
+        ]
+      }, (id) => {
+        if (id) E.showAlert('دکمه انتخاب‌شده: ' + id);
+      });
+    }
+
+    function testHaptic() {
+      if (E?.HapticFeedback) {
+        E.HapticFeedback.impactOccurred('medium');
+        E.HapticFeedback.notificationOccurred('success');
+        E.showAlert('بازخورد لمسی اجرا شد 📳');
+      }
+    }
+
+    function testContact() {
+      E?.requestContact((shared, data) => {
+        if (shared) {
+          E.showAlert('شماره دریافت شد ✅\n(داده هش‌دار به سرور ارسال کنید)');
+          console.log('Contact data:', data);
+        } else {
+          E.showAlert('کاربر شماره را به اشتراک نگذاشت ❌');
+        }
+      });
+    }
+
+    function testWriteAccess() {
+      E?.requestWriteAccess((granted) => {
+        E.showAlert(granted ? 'اجازه ارسال پیام داده شد ✅' : 'اجازه داده نشد ❌');
+      });
+    }
+
+    function testQr() {
+      E?.showScanQrPopup({ text: 'کد QR را در کادر قرار دهید' }, (text) => {
+        E.showAlert('محتوای QR: ' + text);
+        return true; // بستن پنجره اسکنر
+      });
+    }
+
+    function testExpand() {
+      E?.expand();
+    }
+
+    function testHomeScreen() {
+      E?.addToHomeScreen();
+    }
+
+    let darkHeader = false;
+    function toggleTheme() {
+      darkHeader = !darkHeader;
+      E?.setHeaderColor(darkHeader ? '#1a1a2e' : 'bg_color');
+    }
+
+    function closeApp() {
+      E?.close();
+    }
+
+    function copyInit() {
+      const data = E?.initData || '';
+      if (!data) return;
+      navigator.clipboard.writeText(data).then(() => {
+        E?.showAlert('initData کپی شد ✅');
+      }).catch(() => {
+        // فالبک برای مرورگرهای قدیمی
+        const ta = document.createElement('textarea');
+        ta.value = data;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        E?.showAlert('initData کپی شد ✅');
+      });
+    }
+  </script>
+</body>
+</html>
