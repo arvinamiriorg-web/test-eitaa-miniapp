@@ -43,7 +43,6 @@
             gap: 16px;
         }
 
-        /* ---------- پروفایل ---------- */
         .profile {
             display: flex;
             flex-direction: column;
@@ -94,7 +93,6 @@
             font-weight: 500;
         }
 
-        /* ---------- کارت اطلاعات ---------- */
         .info-card {
             background-color: #f9f9f9;
             border-radius: 16px;
@@ -132,7 +130,6 @@
             max-width: 60%;
         }
 
-        /* ---------- دکمه‌ها ---------- */
         .buttons {
             display: flex;
             flex-direction: column;
@@ -166,7 +163,6 @@
             color: #333333;
         }
 
-        /* ---------- حالت‌های بارگذاری و خطا ---------- */
         .loading {
             display: flex;
             flex-direction: column;
@@ -268,7 +264,6 @@
             var errorEl = document.getElementById('error');
             var contentEl = document.getElementById('content');
 
-            /* ---------- ویبره ---------- */
             function vibrate(type) {
                 try {
                     var wa = window.Eitaa && window.Eitaa.WebApp;
@@ -285,7 +280,6 @@
                 } catch (e) {}
             }
 
-            /* ---------- نمایش حالت‌ها ---------- */
             function showError(msg) {
                 loadingEl.classList.add('hidden');
                 contentEl.classList.add('hidden');
@@ -298,7 +292,6 @@
                 contentEl.classList.remove('hidden');
             }
 
-            /* ---------- پارس امن initData ---------- */
             function parseInitData(initData) {
                 var result = { user: null };
                 if (!initData || typeof initData !== 'string') return result;
@@ -310,7 +303,6 @@
                 return result;
             }
 
-            /* ---------- رندر پروفایل ---------- */
             function renderProfile(user) {
                 var firstName = (user && user.first_name) || '';
                 var lastName = (user && user.last_name) || '';
@@ -319,14 +311,11 @@
                 var languageCode = (user && user.language_code) || '—';
                 var photoUrl = (user && (user.photo_url || user.photo)) || null;
 
-                // نام کامل
                 var fullName = [firstName, lastName].filter(Boolean).join(' ') || 'کاربر ایتا';
                 document.getElementById('fullName').textContent = fullName;
 
-                // حرف اول
                 var initial = firstName ? firstName.charAt(0) : (userName ? userName.charAt(0) : '؟');
 
-                // آواتار
                 var avatarEl = document.getElementById('avatar');
                 if (photoUrl) {
                     avatarEl.innerHTML = '';
@@ -341,18 +330,15 @@
                     avatarEl.innerHTML = '<span>' + initial + '</span>';
                 }
 
-                // نام کاربری
                 var usernameEl = document.getElementById('username');
                 usernameEl.textContent = userName ? '@' + userName : '';
 
-                // فیلدها
                 document.getElementById('userId').textContent = userId;
                 document.getElementById('firstName').textContent = firstName || '—';
                 document.getElementById('lastName').textContent = lastName || '—';
                 document.getElementById('languageCode').textContent = languageCode;
             }
 
-            /* ---------- بارگذاری ---------- */
             function loadProfile() {
                 loadingEl.classList.remove('hidden');
                 contentEl.classList.add('hidden');
@@ -371,7 +357,6 @@
                     wa.setHeaderColor('#ffffff');
                 } catch (e) {}
 
-                // دریافت user از initData (امن‌تر) با fallback
                 var user = null;
                 if (wa.initData) {
                     var parsed = parseInitData(wa.initData);
@@ -392,7 +377,6 @@
                 showContent();
             }
 
-            /* ---------- رویدادها ---------- */
             document.getElementById('closeBtn').addEventListener('click', function () {
                 vibrate('medium');
                 try {
@@ -402,7 +386,6 @@
                 } catch (e) {}
             });
 
-            /* ---------- راه‌اندازی ---------- */
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', loadProfile);
             } else {
