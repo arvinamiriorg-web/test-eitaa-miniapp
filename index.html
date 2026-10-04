@@ -50,7 +50,6 @@
             align-items: center;
             text-align: center;
             padding: 8px 0 4px;
-            position: relative;
         }
 
         .avatar {
@@ -162,30 +161,9 @@
             opacity: 0.85;
         }
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-primary {
-            background-color: #2f7cf6;
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(47, 124, 246, 0.25);
-        }
-
         .btn-secondary {
             background-color: #f2f2f2;
             color: #333333;
-        }
-
-        /* چرخش آیکون رفرش هنگام بروزرسانی */
-        .btn.refreshing .icon-refresh {
-            display: inline-block;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         /* ---------- حالت‌های بارگذاری و خطا ---------- */
@@ -209,6 +187,10 @@
             border-top-color: #2f7cf6;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .error {
@@ -274,9 +256,6 @@
         </div>
 
         <div class="buttons">
-            <button class="btn btn-primary" id="refreshBtn" type="button">
-                <span class="icon-refresh">🔄</span> بروزرسانی اطلاعات
-            </button>
             <button class="btn btn-secondary" id="closeBtn" type="button">✖ بستن برنامه</button>
         </div>
     </div>
@@ -288,8 +267,6 @@
             var loadingEl = document.getElementById('loading');
             var errorEl = document.getElementById('error');
             var contentEl = document.getElementById('content');
-            var refreshBtn = document.getElementById('refreshBtn');
-            var isRefreshing = false;
 
             /* ---------- ویبره ---------- */
             function vibrate(type) {
@@ -375,23 +352,7 @@
                 document.getElementById('languageCode').textContent = languageCode;
             }
 
-            /* ---------- دریافت user تازه از SDK ---------- */
-            function fetchUserFromSDK(wa) {
-                var user = null;
-
-                // اولویت ۱: initData (امن‌تر)
-                if (wa.initData) {
-                    var parsed = parseInitData(wa.initData);
-                    user = parsed.user;
-                }
-                // اولویت ۲: initDataUnsafe
-                if (!user && wa.initDataUnsafe && wa.initDataUnsafe.user) {
-                    user = wa.initDataUnsafe.user;
-                }
-                return user;
-            }
-
-            /* ---------- بارگذاری اولیه ---------- */
+            /* ---------- بارگذاری ---------- */
             function loadProfile() {
                 loadingEl.classList.remove('hidden');
                 contentEl.classList.add('hidden');
@@ -410,7 +371,15 @@
                     wa.setHeaderColor('#ffffff');
                 } catch (e) {}
 
-                var user = fetchUserFromSDK(wa);
+                // دریافت user از initData (امن‌تر) با fallback
+                var user = null;
+                if (wa.initData) {
+                    var parsed = parseInitData(wa.initData);
+                    user = parsed.user;
+                }
+                if (!user && wa.initDataUnsafe && wa.initDataUnsafe.user) {
+                    user = wa.initDataUnsafe.user;
+                }
 
                 if (!user) {
                     showError('اطلاعات پروفایل در دسترس نیست.\nلطفاً از داخل ایتا برنامه را باز کنید.');
@@ -423,52 +392,7 @@
                 showContent();
             }
 
-            /* ---------- بروزرسانی ---------- */
-            function refreshProfile() {
-                if (isRefreshing) return;
-
-                var wa = window.Eitaa && window.Eitaa.WebApp;
-                if (!wa) {
-                    vibrate('error');
-                    showError('کیت توسعه ایتا در دسترس نیست.');
-                    return;
-                }
-
-                isRefreshing = true;
-                refreshBtn.disabled = true;
-                refreshBtn.classList.add('refreshing');
-                refreshBtn.innerHTML = '<span class="icon-refresh">🔄</span> در حال بروزرسانی...';
-
-                // کمی تأخیر کوتاه برای نمایش انیمیشن و دریافت داده تازه
-                setTimeout(function () {
-                    try {
-                        var user = fetchUserFromSDK(wa);
-
-                        if (user) {
-                            renderProfile(user);
-                            document.getElementById('platform').textContent = wa.platform || '—';
-                            vibrate('success');
-                        } else {
-                            vibrate('error');
-                        }
-                    } catch (e) {
-                        vibrate('error');
-                    }
-
-                    // بازگرداندن دکمه به حالت عادی
-                    isRefreshing = false;
-                    refreshBtn.disabled = false;
-                    refreshBtn.classList.remove('refreshing');
-                    refreshBtn.innerHTML = '<span class="icon-refresh">🔄</span> بروزرسانی اطلاعات';
-                }, 600);
-            }
-
             /* ---------- رویدادها ---------- */
-            refreshBtn.addEventListener('click', function () {
-                vibrate('medium');
-                refreshProfile();
-            });
-
             document.getElementById('closeBtn').addEventListener('click', function () {
                 vibrate('medium');
                 try {
