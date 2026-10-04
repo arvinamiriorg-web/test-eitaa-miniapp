@@ -2,9 +2,8 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>اطلاعات حساب کاربری</title>
-    <!-- اتصال به کیت توسعه ایتا (طبق مستندات، باید در head و قبل از هر اسکریپت دیگری باشد) -->
     <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
@@ -16,52 +15,58 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+        html {
+            /* اجازه اسکرول */
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         body {
             font-family: 'Vazirmatn', 'Tahoma', sans-serif;
             background-color: #ffffff;
             color: #222222;
+            min-height: 100vh;
+            min-height: 100dvh;
+            /* پدینگ امن برای گوشی‌های notch دار */
+            padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 24px;
-            /* استفاده از ارتفاع پویا برای پر کردن تمام صفحه در WebView */
-            min-height: 100vh;
-            min-height: 100dvh;
+            /* اسکرول عمودی مجاز */
+            overflow-y: auto;
         }
 
         .container {
             width: 100%;
             max-width: 480px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
+            flex-shrink: 0;
         }
 
         .avatar {
-            width: 96px;
-            height: 96px;
+            width: 88px;
+            height: 88px;
             border-radius: 50%;
             background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 40px;
+            margin: 0 auto 14px;
+            font-size: 36px;
+            font-weight: 700;
             color: #888;
             border: 2px solid #f5f5f5;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .avatar img {
@@ -71,31 +76,35 @@
         }
 
         .full-name {
-            font-size: 22px;
+            font-size: clamp(18px, 5vw, 22px);
             font-weight: 700;
             color: #111;
             margin-bottom: 4px;
+            word-break: break-word;
         }
 
         .username {
-            font-size: 14px;
+            font-size: clamp(12px, 3.5vw, 14px);
             color: #888;
             direction: ltr;
             display: inline-block;
+            word-break: break-all;
         }
 
         .info-card {
             background-color: #f9f9f9;
             border-radius: 16px;
-            padding: 8px 20px;
+            padding: 4px 18px;
             border: 1px solid #f0f0f0;
+            flex-shrink: 0;
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 0;
+            gap: 12px;
+            padding: 13px 0;
             border-bottom: 1px solid #eeeeee;
         }
 
@@ -104,37 +113,38 @@
         }
 
         .info-label {
-            font-size: 14px;
+            font-size: clamp(12px, 3.5vw, 14px);
             color: #666;
             font-weight: 500;
+            flex-shrink: 0;
         }
 
         .info-value {
-            font-size: 15px;
+            font-size: clamp(13px, 3.8vw, 15px);
             color: #111;
             font-weight: 600;
             direction: ltr;
             text-align: left;
+            /* اجازه شکستن متن‌های طولانی */
+            word-break: break-all;
             max-width: 60%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         .buttons {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 8px;
+            gap: 10px;
+            margin-top: 4px;
+            flex-shrink: 0;
         }
 
         .btn {
             width: 100%;
-            padding: 16px;
+            padding: 15px;
             border: none;
             border-radius: 14px;
             font-family: 'Vazirmatn', sans-serif;
-            font-size: 16px;
+            font-size: clamp(14px, 4vw, 16px);
             font-weight: 600;
             cursor: pointer;
             transition: opacity 0.2s, transform 0.1s;
@@ -142,6 +152,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            touch-action: manipulation;
         }
 
         .btn:active {
@@ -168,6 +179,9 @@
             gap: 16px;
             color: #888;
             font-size: 15px;
+            padding: 60px 20px;
+            width: 100%;
+            max-width: 480px;
         }
 
         .spinner {
@@ -187,27 +201,33 @@
             text-align: center;
             color: #e53935;
             font-size: 15px;
-            line-height: 1.7;
-            padding: 20px;
+            line-height: 1.8;
+            padding: 40px 20px;
+            width: 100%;
+            max-width: 480px;
+            word-break: break-word;
         }
 
         .hidden {
             display: none !important;
         }
+
+        /* اسکرول‌بار نامرئی */
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
     </style>
 </head>
 <body>
 
-    <!-- حالت بارگذاری -->
     <div id="loading" class="loading">
         <div class="spinner"></div>
         <span>در حال دریافت اطلاعات...</span>
     </div>
 
-    <!-- حالت خطا -->
     <div id="error" class="error hidden"></div>
 
-    <!-- محتوای اصلی -->
     <div id="content" class="container hidden">
         <div class="header">
             <div class="avatar" id="avatar">
@@ -246,11 +266,15 @@
                 <span class="info-label">نسخه کیت</span>
                 <span class="info-value" id="sdkVersion">—</span>
             </div>
+            <div class="info-row">
+                <span class="info-label">وضعیت احراز</span>
+                <span class="info-value" id="authStatus">—</span>
+            </div>
         </div>
 
         <div class="buttons">
-            <button class="btn btn-primary" id="refreshBtn">🔄 دریافت مجدد اطلاعات</button>
-            <button class="btn btn-secondary" id="closeBtn">✖ بستن برنامه</button>
+            <button class="btn btn-primary" id="refreshBtn" type="button">🔄 دریافت مجدد اطلاعات</button>
+            <button class="btn btn-secondary" id="closeBtn" type="button">✖ بستن برنامه</button>
         </div>
     </div>
 
@@ -258,176 +282,180 @@
         (function () {
             'use strict';
 
-            // عناصر DOM
-            const loadingEl = document.getElementById('loading');
-            const errorEl = document.getElementById('error');
-            const contentEl = document.getElementById('content');
+            var loadingEl = document.getElementById('loading');
+            var errorEl = document.getElementById('error');
+            var contentEl = document.getElementById('content');
 
-            // تابع کمکی برای ویبره (بازخورد لمسی)
+            /* ---------- ویبره ---------- */
             function vibrate(type) {
                 try {
-                    if (window.Eitaa && window.Eitaa.WebApp && window.Eitaa.WebApp.HapticFeedback) {
-                        const hf = window.Eitaa.WebApp.HapticFeedback;
-                        switch (type) {
-                            case 'light':
-                                hf.impactOccurred('light');
-                                break;
-                            case 'medium':
-                                hf.impactOccurred('medium');
-                                break;
-                            case 'heavy':
-                                hf.impactOccurred('heavy');
-                                break;
-                            case 'success':
-                                hf.notificationOccurred('success');
-                                break;
-                            case 'error':
-                                hf.notificationOccurred('error');
-                                break;
-                            case 'warning':
-                                hf.notificationOccurred('warning');
-                                break;
-                            default:
-                                hf.impactOccurred('light');
+                    var wa = window.Eitaa && window.Eitaa.WebApp;
+                    if (wa && wa.HapticFeedback) {
+                        var hf = wa.HapticFeedback;
+                        if (type === 'success' || type === 'error' || type === 'warning') {
+                            hf.notificationOccurred(type);
+                        } else {
+                            hf.impactOccurred(type || 'light');
                         }
+                    } else if (navigator.vibrate) {
+                        navigator.vibrate(15);
                     }
-                } catch (e) {
-                    // نادیده گرفتن خطا در صورت عدم پشتیبانی
-                }
+                } catch (e) {}
             }
 
-            // نمایش خطا
-            function showError(message) {
+            /* ---------- نمایش حالت‌ها ---------- */
+            function showError(msg) {
                 loadingEl.classList.add('hidden');
                 contentEl.classList.add('hidden');
                 errorEl.classList.remove('hidden');
-                errorEl.textContent = message;
+                errorEl.textContent = msg;
             }
-
-            // نمایش محتوا
             function showContent() {
                 loadingEl.classList.add('hidden');
                 errorEl.classList.add('hidden');
                 contentEl.classList.remove('hidden');
             }
 
-            // به‌روزرسانی UI با داده‌های کاربر
-            function renderUserData(user) {
-                const firstName = user.first_name || '';
-                const lastName = user.last_name || '';
-                const userName = user.username || '';
-                const userId = user.id != null ? user.id : '—';
-                const languageCode = user.language_code || '—';
+            /* ---------- پارس امن initData ---------- */
+            function parseInitData(initData) {
+                // initData یک query string است
+                var result = { user: null, auth_date: null, hash: null, raw: initData };
+                if (!initData || typeof initData !== 'string') return result;
 
-                // نام کامل
-                const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'کاربر ایتا';
+                try {
+                    var params = new URLSearchParams(initData);
+                    var userStr = params.get('user');
+                    if (userStr) {
+                        result.user = JSON.parse(userStr);
+                    }
+                    result.auth_date = params.get('auth_date');
+                    result.hash = params.get('hash');
+                } catch (e) {
+                    console.warn('parseInitData error:', e);
+                }
+                return result;
+            }
+
+            /* ---------- بررسی اعتبار (سمت کلاینت - فقط برای نمایش) ----------
+               توجه: اعتبارسنجی اصلی باید در سرور انجام شود.
+               اینجا فقط بررسی می‌کنیم که auth_date تازه باشد (< 24 ساعت)
+               و hash وجود داشته باشد. */
+            function checkFreshness(authDate) {
+                if (!authDate) return false;
+                var ts = parseInt(authDate, 10);
+                if (isNaN(ts)) return false;
+                var now = Math.floor(Date.now() / 1000);
+                // اگر کمتر از 24 ساعت گذشته باشد
+                return (now - ts) < 86400 && (now - ts) >= -60;
+            }
+
+            /* ---------- رندر داده کاربر ---------- */
+            function renderUserData(user, meta) {
+                var firstName = (user && user.first_name) || '';
+                var lastName = (user && user.last_name) || '';
+                var userName = (user && user.username) || '';
+                var userId = (user && user.id != null) ? user.id : '—';
+                var languageCode = (user && user.language_code) || '—';
+
+                var fullName = [firstName, lastName].filter(Boolean).join(' ') || 'کاربر ایتا';
                 document.getElementById('fullName').textContent = fullName;
 
-                // حرف اول برای آواتار
-                const initial = firstName ? firstName.charAt(0) : (userName ? userName.charAt(0) : '؟');
-                document.getElementById('avatarInitial').textContent = initial;
+                var initial = firstName ? firstName.charAt(0) : (userName ? userName.charAt(0) : '؟');
+                var avatarEl = document.getElementById('avatar');
+                avatarEl.innerHTML = '<span id="avatarInitial">' + initial + '</span>';
 
-                // آواتار تصویری (در صورت وجود photo_url)
-                if (user.photo_url) {
-                    const avatarEl = document.getElementById('avatar');
-                    avatarEl.innerHTML = '';
-                    const img = document.createElement('img');
-                    img.src = user.photo_url;
+                // photo_url در SDK ایتا ممکن است متفاوت باشد
+                if (user && (user.photo_url || user.photo)) {
+                    var img = document.createElement('img');
+                    img.src = user.photo_url || user.photo;
                     img.alt = fullName;
                     img.onerror = function () {
                         avatarEl.innerHTML = '<span>' + initial + '</span>';
                     };
+                    avatarEl.innerHTML = '';
                     avatarEl.appendChild(img);
                 }
 
-                // نام کاربری
-                const usernameEl = document.getElementById('username');
-                if (userName) {
-                    usernameEl.textContent = '@' + userName;
-                } else {
-                    usernameEl.textContent = '';
-                }
+                var usernameEl = document.getElementById('username');
+                usernameEl.textContent = userName ? '@' + userName : '';
 
-                // سایر فیلدها
                 document.getElementById('userId').textContent = userId;
                 document.getElementById('firstName').textContent = firstName || '—';
                 document.getElementById('lastName').textContent = lastName || '—';
                 document.getElementById('userName').textContent = userName ? '@' + userName : '—';
                 document.getElementById('languageCode').textContent = languageCode;
 
-                // اطلاعات SDK
-                const wa = window.Eitaa.WebApp;
+                var wa = window.Eitaa.WebApp;
                 document.getElementById('platform').textContent = wa.platform || '—';
                 document.getElementById('sdkVersion').textContent = wa.version || '—';
+
+                // وضعیت احراز (فقط نمایشی)
+                var authStatusEl = document.getElementById('authStatus');
+                if (meta && meta.auth_date && checkFreshness(meta.auth_date)) {
+                    authStatusEl.textContent = '✓ داده تازه';
+                    authStatusEl.style.color = '#2e7d32';
+                } else if (meta && meta.auth_date) {
+                    authStatusEl.textContent = '⚠ قدیمی';
+                    authStatusEl.style.color = '#ed6c02';
+                } else {
+                    authStatusEl.textContent = '—';
+                    authStatusEl.style.color = '#666';
+                }
             }
 
-            // بارگذاری اطلاعات کاربر از SDK
+            /* ---------- بارگذاری اطلاعات ---------- */
             function loadUserData() {
                 loadingEl.classList.remove('hidden');
                 contentEl.classList.add('hidden');
                 errorEl.classList.add('hidden');
 
-                // بررسی وجود SDK
-                if (!window.Eitaa || !window.Eitaa.WebApp) {
+                var wa = window.Eitaa && window.Eitaa.WebApp;
+                if (!wa) {
                     showError('کیت توسعه ایتا در دسترس نیست. لطفاً این برنامه را از داخل پیام‌رسان ایتا باز کنید.');
                     return;
                 }
 
-                const wa = window.Eitaa.WebApp;
-
-                // اطلاع به ایتا که برنامه آماده نمایش است
-                try {
-                    wa.ready();
-                } catch (e) {}
-
-                // درخواست حالت تمام صفحه
-                try {
-                    wa.expand();
-                } catch (e) {}
-
-                // تنظیم رنگ پس‌زمینه سفید
+                // اطلاع به ایتا
+                try { wa.ready(); } catch (e) {}
+                try { wa.expand(); } catch (e) {}
                 try {
                     wa.setBackgroundColor('#ffffff');
                     wa.setHeaderColor('#ffffff');
                 } catch (e) {}
 
-                // تلاش برای دریافت داده‌های کاربر
-                let user = null;
+                // دریافت داده‌ها - اولویت با initData (امن‌تر) است
+                var user = null;
+                var meta = { auth_date: null, hash: null };
 
-                // روش 1: از طریق initDataUnsafe.user
-                if (wa.initDataUnsafe && wa.initDataUnsafe.user) {
+                // روش ۱: پارس initData (توصیه‌شده طبق مستندات)
+                if (wa.initData) {
+                    var parsed = parseInitData(wa.initData);
+                    user = parsed.user;
+                    meta.auth_date = parsed.auth_date;
+                    meta.hash = parsed.hash;
+                }
+
+                // روش ۲: fallback به initDataUnsafe
+                if (!user && wa.initDataUnsafe && wa.initDataUnsafe.user) {
                     user = wa.initDataUnsafe.user;
+                    if (wa.initDataUnsafe.auth_date) meta.auth_date = wa.initDataUnsafe.auth_date;
+                    if (wa.initDataUnsafe.hash) meta.hash = wa.initDataUnsafe.hash;
                 }
 
-                // روش 2: اگر user نبود، از initData پارس کنیم
-                if (!user && wa.initData) {
-                    try {
-                        const params = new URLSearchParams(wa.initData);
-                        const userStr = params.get('user');
-                        if (userStr) {
-                            user = JSON.parse(userStr);
-                        }
-                    } catch (e) {
-                        console.warn('خطا در پارس initData:', e);
-                    }
-                }
-
-                // نمایش داده‌ها
                 if (user) {
-                    renderUserData(user);
+                    renderUserData(user, meta);
                     showContent();
                 } else {
-                    showError('اطلاعات حساب کاربری در دسترس نیست. لطفاً از داخل ایتا برنامه را باز کنید.');
+                    showError('اطلاعات حساب کاربری در دسترس نیست.\nلطفاً از داخل ایتا برنامه را باز کنید.');
                 }
             }
 
-            // رویداد کلیک دکمه دریافت مجدد
+            /* ---------- رویدادها ---------- */
             document.getElementById('refreshBtn').addEventListener('click', function () {
                 vibrate('medium');
                 loadUserData();
             });
 
-            // رویداد کلیک دکمه بستن
             document.getElementById('closeBtn').addEventListener('click', function () {
                 vibrate('medium');
                 try {
@@ -437,21 +465,12 @@
                 } catch (e) {}
             });
 
-            // راه‌اندازی اولیه هنگام بارگذاری صفحه
+            /* ---------- راه‌اندازی ---------- */
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', loadUserData);
             } else {
                 loadUserData();
             }
-
-            // گوش دادن به رویداد تغییر تم (اختیاری)
-            try {
-                if (window.Eitaa && window.Eitaa.WebApp && window.Eitaa.WebApp.onEvent) {
-                    window.Eitaa.WebApp.onEvent('themeChanged', function () {
-                        // در صورت نیاز می‌توان رنگ‌ها را تغییر داد
-                    });
-                }
-            } catch (e) {}
 
         })();
     </script>
